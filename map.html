@@ -7,6 +7,8 @@
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
     <style>
         * {
@@ -195,14 +197,14 @@
 
         .custom-popup {
             font-family: 'Segoe UI', 'Nirmala UI', 'Manjari', Arial, sans-serif;
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .popup-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--accent-color);
         }
@@ -211,7 +213,44 @@
             font-size: 0.9rem;
             color: var(--text-dark);
             margin-top: 0.5rem;
-            line-height: 1.6;
+            line-height: 1.8;
+        }
+
+        .book-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.8rem;
+            padding: 0.5rem;
+            background: var(--bg-light);
+            border-radius: 6px;
+        }
+
+        .book-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .book-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .book-link {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .book-link:hover {
+            text-decoration: underline;
         }
 
         /* Footer */
@@ -304,6 +343,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#features">Features</a></li>
                 <li><a href="index.html#about">About</a></li>
                 <li><a href="map.html" class="active">Explore Map</a></li>
                 <li><a href="index.html#contribute">Contribute</a></li>
@@ -314,7 +354,7 @@
     <!-- Page Header -->
     <header class="page-header">
         <h1>📍 Publishing Houses Map</h1>
-        <p>Explore the geographical distribution of Malayalam book publishers across the world</p>
+        <p>Explore the geographical distribution of Malayalam book publishers across India</p>
     </header>
 
     <!-- Statistics -->
@@ -358,9 +398,10 @@
             <div class="footer-section">
                 <h3>Quick Links</h3>
                 <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="map.html">Map</a></li>
-                    <li><a href="#about">About</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="map.html">Publishing Map</a></li>
+                    <li><a href="index.html#features">Features</a></li>
+                    <li><a href="index.html#about">About</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -368,20 +409,23 @@
                 <ul>
                     <li><a href="https://www.wikidata.org" target="_blank">Wikidata</a></li>
                     <li><a href="https://query.wikidata.org" target="_blank">SPARQL Query Service</a></li>
+                    <li><a href="#" target="_blank">API Documentation</a></li>
+                    <li><a href="#" target="_blank">Developer Guide</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h3>Community</h3>
                 <ul>
-                    <li><a href="#contribute">Contribute</a></li>
-                    <li><a href="https://github.com/sahyafoundation/Grandham" target="_blank">GitHub Repository</a></li>
+                    <li><a href="index.html#contribute">Contribute</a></li>
+                    <li><a href="#" target="_blank">GitHub Repository</a></li>
                     <li><a href="https://grandham.in" target="_blank">Grandham.in</a></li>
+                    <li><a href="#" target="_blank">Contact Us</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
             <p>
-                Built with ❤️ for Malayalam Literature |
+                Supported by <a href="https://sahya.org.in/">Sahya Digital Conservation Foundation</a> |
                 Data from <a href="https://www.wikidata.org" target="_blank" style="color: #F8B739;">Wikidata</a> |
                 Open Source • Open Data • Open Knowledge
             </p>
@@ -390,20 +434,24 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // SPARQL Query
+        // Modified SPARQL Query to get book details and Wikisource index
         const sparqlQuery = `
-SELECT DISTINCT ?id ?geo (concat('[[Category:', ?idLabel, ' Published from|',  ?idLabel,  ']]') as ?title) ('library' as ?marker_symbol) ('medium' as ?marker_size) ('#072A6C' as ?marker_color)
+SELECT DISTINCT ?book ?bookLabel ?indexPage ?location ?locationLabel ?geo
 WHERE
 {
   {?book wdt:P31 wd:Q3331189} UNION {?book wdt:P31 wd:Q28869365}.
-  ?book wdt:P1957 ?index;
+  ?book wdt:P1957 ?indexPage;
         wdt:P407 wd:Q36236;
-        wdt:P291 ?id.
-  ?id wdt:P625 ?geo.
-  SERVICE wikibase:label { bd:serviceParam wikibase:language 'ml'. ?id rdfs:label ?idLabel.}
-} ORDER BY ?id
+        wdt:P291 ?location.
+  ?location wdt:P625 ?geo.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language 'ml,en'.
+    ?book rdfs:label ?bookLabel.
+    ?location rdfs:label ?locationLabel.
+  }
+} ORDER BY ?location ?bookLabel
         `.trim();
 
         // Wikidata SPARQL endpoint
@@ -411,6 +459,7 @@ WHERE
 
         // Initialize map
         let map;
+        let markerCluster;
 
         function initMap() {
             // Create map centered on Kerala
@@ -421,6 +470,17 @@ WHERE
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 18
             }).addTo(map);
+
+            // Initialize marker cluster group
+            markerCluster = L.markerClusterGroup({
+                maxClusterRadius: 60,
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: true,
+                zoomToBoundsOnClick: true,
+                disableClusteringAtZoom: 15
+            });
+
+            map.addLayer(markerCluster);
         }
 
         // Fetch data from Wikidata
@@ -463,30 +523,36 @@ WHERE
             });
         }
 
-        // Add markers to map without clustering
+        // Add markers to map with clustering
         function addMarkersToMap(data) {
             const locations = new Map();
-            const bounds = [];
 
-            // Process data and group by location
+            // Group books by location
             data.forEach(item => {
                 const coords = item.geo.value.match(/Point\(([-\d.]+) ([-\d.]+)\)/);
                 if (coords) {
                     const lon = parseFloat(coords[1]);
                     const lat = parseFloat(coords[2]);
-                    const locationId = item.id.value;
-                    const locationName = item.title.value.match(/\[\[Category:(.*?) Published from/)[1];
+                    const locationId = item.location.value;
+                    const locationName = item.locationLabel.value;
+                    const bookId = item.book.value;
+                    const bookLabel = item.bookLabel.value;
+                    const indexPage = item.indexPage.value;
 
                     if (!locations.has(locationId)) {
                         locations.set(locationId, {
                             name: locationName,
                             lat: lat,
                             lon: lon,
-                            count: 0,
-                            id: locationId
+                            books: []
                         });
                     }
-                    locations.get(locationId).count++;
+
+                    locations.get(locationId).books.push({
+                        id: bookId,
+                        title: bookLabel,
+                        index: indexPage
+                    });
                 }
             });
 
@@ -495,34 +561,56 @@ WHERE
             document.getElementById('book-count').textContent = data.length;
             document.getElementById('unique-publishers').textContent = locations.size;
 
-            // Add individual markers for each location
+            // Add markers with book information
             locations.forEach((location, id) => {
                 const marker = L.marker([location.lat, location.lon], {
                     icon: createCustomIcon()
-                }).addTo(map);
+                });
+
+                // Create book list HTML
+                let bookListHTML = '';
+                location.books.forEach((book, index) => {
+                    if (index < 10) { // Show first 10 books
+                        bookListHTML += `
+                            <div class="book-item">
+                                <div class="book-title">${book.title}</div>
+                                <a href="${book.id}" target="_blank" class="book-link">📖 View on Wikidata</a> |
+                                <a href="${book.index}" target="_blank" class="book-link">📄 Wikisource Index</a>
+                            </div>
+                        `;
+                    }
+                });
+
+                if (location.books.length > 10) {
+                    bookListHTML += `<div style="text-align: center; padding: 0.5rem; font-style: italic;">
+                        ... and ${location.books.length - 10} more books
+                    </div>`;
+                }
 
                 const popupContent = `
                     <div class="custom-popup">
                         <div class="popup-title">${location.name}</div>
                         <div class="popup-info">
-                            📚 Books Published: <strong>${location.count}</strong><br>
-                            📍 Coordinates: ${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}<br>
-                            🔗 <a href="${location.id}" target="_blank" style="color: #072A6C;">View on Wikidata</a>
+                            📚 Total Books: <strong>${location.books.length}</strong><br>
+                            📍 Coordinates: ${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}
+                        </div>
+                        <div class="book-list">
+                            ${bookListHTML}
                         </div>
                     </div>
                 `;
 
                 marker.bindPopup(popupContent, {
-                    maxWidth: 300,
+                    maxWidth: 400,
                     className: 'custom-leaflet-popup'
                 });
 
-                // Add to bounds for auto-fitting
-                bounds.push([location.lat, location.lon]);
+                markerCluster.addLayer(marker);
             });
 
             // Fit map to show all markers
-            if (bounds.length > 0) {
+            if (locations.size > 0) {
+                const bounds = markerCluster.getBounds();
                 map.fitBounds(bounds, {
                     padding: [50, 50],
                     maxZoom: 12

@@ -232,7 +232,7 @@
         }
 
         .book-list {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             margin-top: 0.8rem;
             padding: 0.5rem;
@@ -255,7 +255,15 @@
         .book-title {
             font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.3rem;
+            line-height: 1.4;
+        }
+
+        .book-author {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+            font-style: italic;
         }
 
         .book-link {
@@ -364,6 +372,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#features">Features</a></li>
                 <li><a href="index.html#about">About</a></li>
                 <li><a href="map.html" class="active">Explore Map</a></li>
                 <li><a href="index.html#contribute">Contribute</a></li>
@@ -374,7 +383,7 @@
     <!-- Page Header -->
     <header class="page-header">
         <h1>📍 Publishing Houses Map</h1>
-        <p>Explore the geographical distribution of Malayalam book publishers across the World</p>
+        <p>Explore the geographical distribution of Malayalam book publishers across India</p>
     </header>
 
     <!-- Statistics -->
@@ -457,9 +466,9 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // Modified SPARQL Query to get book details and Wikisource index
+        // Modified SPARQL Query to get book details, author, publication date, and Wikisource index
         const sparqlQuery = `
-SELECT DISTINCT ?book ?bookLabel ?indexPage ?location ?locationLabel ?geo
+SELECT DISTINCT ?book ?bookLabel ?author ?authorLabel ?indexPage ?pubDate ?location ?locationLabel ?geo
 WHERE
 {
   {?book wdt:P31 wd:Q3331189} UNION {?book wdt:P31 wd:Q28869365}.
@@ -467,11 +476,14 @@ WHERE
         wdt:P407 wd:Q36236;
         wdt:P291 ?location.
   ?location wdt:P625 ?geo.
+  OPTIONAL { ?book wdt:P577 ?pubDate. }
+  OPTIONAL { ?book wdt:P50 ?author. }
   SERVICE wikibase:label { bd:serviceParam wikibase:language 'ml,en'.
     ?book rdfs:label ?bookLabel.
     ?location rdfs:label ?locationLabel.
+    ?author rdfs:label ?authorLabel.
   }
-} ORDER BY ?location ?bookLabel
+} ORDER BY ?location ?pubDate ?bookLabel
         `.trim();
 
         // Wikidata SPARQL endpoint
@@ -505,7 +517,7 @@ WHERE
             });
 
             // Add default layer
-            esriLayer.addTo(map);
+            osmLayer.addTo(map);
 
             // Define base layers for layer control
             baseLayers = {
@@ -583,6 +595,13 @@ WHERE
             }
         }
 
+        // Extract year from date string
+        function getYear(dateString) {
+            if (!dateString) return null;
+            const match = dateString.match(/^(\d{4})/);
+            return match ? match[1] : null;
+        }
+
         // Create custom icon
         function createCustomIcon() {
             return L.divIcon({
@@ -613,6 +632,8 @@ WHERE
                     const bookId = item.book.value;
                     const bookLabel = item.bookLabel.value;
                     const indexPage = item.indexPage.value;
+                    const pubYear = item.pubDate ? getYear(item.pubDate.value) : null;
+                    const authorName = item.authorLabel ? item.authorLabel.value : null;
 
                     if (!locations.has(locationId)) {
                         locations.set(locationId, {
@@ -626,7 +647,9 @@ WHERE
                     locations.get(locationId).books.push({
                         id: bookId,
                         title: bookLabel,
-                        index: indexPage
+                        index: indexPage,
+                        year: pubYear,
+                        author: authorName
                     });
                 }
             });
@@ -646,9 +669,13 @@ WHERE
                 let bookListHTML = '';
                 location.books.forEach((book, index) => {
                     if (index < 10) { // Show first 10 books
+                        const titleWithYear = book.year ? `${book.title} (${book.year})` : book.title;
+                        const authorDisplay = book.author ? `<div class="book-author">✍️ ${book.author}</div>` : '';
+
                         bookListHTML += `
                             <div class="book-item">
-                                <div class="book-title">${book.title}</div>
+                                <div class="book-title">${titleWithYear}</div>
+                                ${authorDisplay}
                                 <a href="${book.id}" target="_blank" class="book-link">📖 View on Wikidata</a> |
                                 <a href="${book.index}" target="_blank" class="book-link">📄 Wikisource Index</a>
                             </div>
@@ -666,8 +693,7 @@ WHERE
                     <div class="custom-popup">
                         <div class="popup-title">${location.name}</div>
                         <div class="popup-info">
-                            📚 Total Books: <strong>${location.books.length}</strong><br>
-                            📍 Coordinates: ${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}
+                            📚 Total Books: <strong>${location.books.length}</strong>
                         </div>
                         <div class="book-list">
                             ${bookListHTML}

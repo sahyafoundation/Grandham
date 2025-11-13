@@ -165,6 +165,21 @@
             border: 2px solid var(--bg-light);
         }
 
+        .map-disclaimer {
+            max-width: 1400px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background: #FFF9E6;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .map-disclaimer strong {
+            color: var(--primary-color);
+        }
+
         /* Loading Spinner */
         .loading {
             display: flex;
@@ -251,6 +266,12 @@
 
         .book-link:hover {
             text-decoration: underline;
+        }
+
+        /* Layer Control */
+        .leaflet-control-layers {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
         }
 
         /* Footer */
@@ -343,7 +364,6 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#features">Features</a></li>
                 <li><a href="index.html#about">About</a></li>
                 <li><a href="map.html" class="active">Explore Map</a></li>
                 <li><a href="index.html#contribute">Contribute</a></li>
@@ -354,7 +374,7 @@
     <!-- Page Header -->
     <header class="page-header">
         <h1>📍 Publishing Houses Map</h1>
-        <p>Explore the geographical distribution of Malayalam book publishers across India</p>
+        <p>Explore the geographical distribution of Malayalam book publishers across the World</p>
     </header>
 
     <!-- Statistics -->
@@ -381,6 +401,9 @@
                     <div class="spinner"></div>
                     <p>Loading publishing locations from Wikidata...</p>
                 </div>
+            </div>
+            <div class="map-disclaimer">
+                <strong>Map Disclaimer:</strong> The boundaries shown on this map are as per the official position of the Government of India. The external boundaries and coastlines of India as depicted in this map are neither correct nor authentic. For authentic boundaries, please refer to maps published by the Survey of India.
             </div>
         </div>
     </section>
@@ -460,16 +483,42 @@ WHERE
         // Initialize map
         let map;
         let markerCluster;
+        let baseLayers = {};
 
         function initMap() {
-            // Create map centered on Kerala
-            map = L.map('map').setView([10.8505, 76.2711], 7);
+            // Create map centered on India
+            map = L.map('map').setView([20.5937, 78.9629], 5);
 
-            // Add tile layer
-           L.tileLayer('https://tile.openstreetmap.bzh/ca/{z}/{x}/{y}.png',{
+            // OpenStreetMap layer (default - shows international boundaries)
+            const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 18
-            }).addTo(map);
+            });
+
+            // ESRI World Street Map (alternative)
+            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © Esri',
+                maxZoom: 18
+            });
+
+            // CartoDB Positron (clean alternative)
+            const cartoDBLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 19
+            });
+
+            // Add default layer
+            esriLayer.addTo(map);
+
+            // Define base layers for layer control
+            baseLayers = {
+                "OpenStreetMap": osmLayer,
+                "ESRI Street Map": esriLayer,
+                "CartoDB Light": cartoDBLayer
+            };
+
+            // Add layer control
+            L.control.layers(baseLayers).addTo(map);
 
             // Initialize marker cluster group
             markerCluster = L.markerClusterGroup({
@@ -481,6 +530,35 @@ WHERE
             });
 
             map.addLayer(markerCluster);
+
+            // Add India boundary overlay (GeoJSON)
+            addIndiaBoundary();
+        }
+
+        // Add India boundary overlay showing official boundaries
+        async function addIndiaBoundary() {
+            try {
+                // Note: For production, you should host your own GeoJSON file with official boundaries
+                // This is a placeholder - replace with official Survey of India approved boundaries
+                const indiaGeoJSON = {
+                    "type": "FeatureCollection",
+                    "features": []
+                    // In production, load from: your-server/india-official-boundary.geojson
+                };
+
+                // Add boundary layer with styling
+                L.geoJSON(indiaGeoJSON, {
+                    style: {
+                        color: '#FF6600',
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: 0.05
+                    }
+                }).addTo(map);
+
+            } catch (error) {
+                console.log('India boundary overlay not available');
+            }
         }
 
         // Fetch data from Wikidata

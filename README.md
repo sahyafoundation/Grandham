@@ -41,7 +41,7 @@ No installation required! This is a static HTML/JavaScript project that runs dir
 
 ## 📊 Data Source
 
-All bibliographic data is sourced from [Wikidata](https://www.wikidata.org), the free knowledge base. The project uses SPARQL queries to fetch:
+All bibliographic data is sourced from [Wikidata](https://www.wikidata.org), the free knowledge base. The project uses FRBR Bibliography datamodel. The project uses SPARQL queries to fetch:
 
 - Malayalam books (edition and written work types)
 - Wikisource index pages

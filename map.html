@@ -466,7 +466,7 @@ WHERE
             map = L.map('map').setView([10.8505, 76.2711], 7);
 
             // Add tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+           L.tileLayer('https://tile.openstreetmap.bzh/ca/{z}/{x}/{y}.png',{
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 18
             }).addTo(map);

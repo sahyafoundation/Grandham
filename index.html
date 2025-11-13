@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ഗ്രന്ഥം | Grandham - Malayalam Books Bibliography</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #072A6C;
+            --secondary-color: #E8505B;
+            --accent-color: #F8B739;
+            --text-dark: #2C3E50;
+            --text-light: #ECF0F1;
+            --bg-light: #F5F7FA;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Nirmala UI', 'Manjari', 'Rachana', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+            background: var(--bg-light);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0a3d8f 100%);
+            color: var(--text-light);
+            padding: 6rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+            opacity: 0.9;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1.4s ease;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: var(--text-dark);
+            box-shadow: 0 4px 15px rgba(248, 183, 57, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(248, 183, 57, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: var(--bg-light);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            opacity: 0.8;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-dark);
+            opacity: 0.85;
+            line-height: 1.7;
+        }
+
+        /* Statistics Section */
+        .statistics {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0a3d8f 100%);
+            border-radius: 16px;
+            color: white;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* About Section */
+        .about {
+            padding: 5rem 2rem;
+            background: var(--bg-light);
+        }
+
+        .about-content {
+            max-width: 1000px;
+            margin: 3rem auto 0;
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            line-height: 1.9;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .about-content strong {
+            color: var(--primary-color);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #c9404a 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-color);
+            color: var(--text-light);
+            padding: 3rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--accent-color);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section a {
+            color: var(--text-light);
+            text-decoration: none;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+            color: var(--accent-color);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span>📚</span>
+                <span>ഗ്രന്ഥം</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="map.html">Explore Map</a></li>
+                <li><a href="#contribute">Contribute</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>🕮 ഗ്രന്ഥം(Grandham)</h1>
+            <p class="hero-subtitle">A Comprehensive Bibliography of Malayalam Literature</p>
+            <p class="hero-description">
+                Discover, explore, and celebrate the rich literary heritage of Malayalam.
+                Grandham is an open bibliography project documenting thousands of Malayalam books,
+                their publishers, and publishing houses across time and geography. Built on open data
+                from Wikidata, this project preserves and showcases the cultural legacy of Malayalam literature.
+            </p>
+            <div class="hero-buttons">
+                <a href="map.html" class="btn btn-primary">Explore Publishing Map</a>
+                <a href="#about" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="section-header">
+            <h2 class="section-title">About Grandham</h2>
+            <p class="section-subtitle">Documenting Malayalam literary history for future generations</p>
+        </div>
+        <div class="about-content">
+            <p>
+                <strong>Grandham</strong> (ഗ്രന്ഥം, meaning "book" or "text" in Malayalam) is an open-source
+                bibliography project dedicated to documenting and preserving the rich history of Malayalam
+                literature. Inspired by the pioneering work of bibliographers like K.M. Govi, whose Malayalam
+                Granthasoochi documented books over forty years, Grandham brings bibliographic data into the
+                digital age.
+            </p>
+            <p>
+                Our project leverages <strong>Wikidata</strong>, the free knowledge base, to create a comprehensive,
+                structured, and queryable database of Malayalam books. By connecting bibliographic information with
+                geographic data, we reveal the spatial distribution of Malayalam publishing across Kerala and beyond,
+                showing how literary production has evolved across different regions and time periods.
+            </p>
+            <p>
+                Grandham serves researchers, students, librarians, publishers, and anyone interested in Malayalam
+                literature. Whether you're tracing the publication history of a specific author, studying regional
+                publishing trends, or simply exploring Malayalam literary heritage, Grandham provides the tools and
+                data you need.
+            </p>
+            <p>
+                The project is built entirely on <strong>open-source technologies</strong> and <strong>open data</strong>,
+                ensuring that Malayalam literary heritage remains accessible to all. We believe in the power of community
+                collaboration and invite scholars, developers, and enthusiasts to contribute to this ongoing effort to
+                document and celebrate Malayalam literature.
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contribute">
+        <div class="cta-content">
+            <h2>Help Build the Future of Malayalam Bibliography</h2>
+            <p>
+                Join our community of contributors and help us document Malayalam literary heritage.
+                Whether you're adding data to Wikidata, developing features, or spreading the word,
+                your contribution matters.
+            </p>
+            <div class="hero-buttons">
+                <a href="https://www.wikidata.org" target="_blank" class="btn btn-primary">Contribute to Wikidata</a>
+                <a href="https://github.com" target="_blank" class="btn btn-secondary" style="color: white; border-color: white;">View on GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Grandham</h3>
+                <p>
+                    An open bibliography project documenting Malayalam literary heritage through
+                    structured data and interactive visualizations.
+                </p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="map.html">Publishing Map</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="https://www.wikidata.org" target="_blank">Wikidata</a></li>
+                    <li><a href="https://query.wikidata.org" target="_blank">SPARQL Query Service</a></li>
+                    <li><a href="#" target="_blank">API Documentation</a></li>
+                    <li><a href="#" target="_blank">Developer Guide</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Community</h3>
+                <ul>
+                    <li><a href="#contribute">Contribute</a></li>
+                    <li><a href="#" target="_blank">GitHub Repository</a></li>
+                    <li><a href="https://grandham.in" target="_blank">Grandham.in</a></li>
+                    <li><a href="#" target="_blank">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>
+                Built with ❤️ for Malayalam Literature |
+                Data from <a href="https://www.wikidata.org" target="_blank" style="color: #F8B739;">Wikidata</a> |
+                Open Source • Open Data • Open Culture
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
